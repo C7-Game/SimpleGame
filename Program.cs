@@ -4,23 +4,17 @@ namespace simplegame
 {
     class Program
     {
-        // public readonly Player Player1;
-        // public readonly Player Player2;
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
             int Width = 25;
             int Height = 25;
-            int MaxTurns = 25;
+            int MaxTurns = 250;
             Map GameMap = new Map(Width, Height);
-            Console.WriteLine(GameMap.Tiles[5,5].DefenseBonus);
+
             Player[] Players = new Player[2]; 
             Players[0] = new Player("Player 1", 5, 5);
             Players[1] = new Player("Player 2", 20, 20);
             Player Winner = null;
-            // Turn Player1Turn = new Turn(GameMap, Player1, Player2, 1);
-            // Console.WriteLine(Player1Turn.Attack);
-            // Console.WriteLine(Player1Turn.Action);
             int t;
             for(t=0; Winner==null && t < MaxTurns; t++)
             {
@@ -29,9 +23,15 @@ namespace simplegame
                 {
                     // hack assuming only two players
                     int e = 1 - p;
-                    Turn PlayerTurn = new Turn(GameMap, Players[p], Players[e], t);
+                    Player Enemy = null;
+                    if(Math.Abs(Players[p].X - Players[e].X) < 2 && Math.Abs(Players[p].Y - Players[e].Y) < 2)
+                    {
+                        Enemy = Players[e];
+                    }
+                    Turn PlayerTurn = new Turn(GameMap, Players[p], Enemy, t);
                     // take turn
-                    PlayerTurn.Attack();
+                        SimpleAI(PlayerTurn);
+
                     Console.WriteLine("  " + PlayerTurn.Action);
                     if(PlayerTurn.PlayerNote != null) Console.WriteLine("  Player's note: " + PlayerTurn.PlayerNote);
                     if(PlayerTurn.IsEnemyDead)
@@ -46,7 +46,35 @@ namespace simplegame
                     }
                 }
             }
-            Console.WriteLine("\n" + Winner.Name + " wins in " + t.ToString() + (t > 1? " turns\n": " turn\n"));
+            if(Winner!=null)
+            {
+                Console.WriteLine("\n" + Winner.Name + " wins in " + t.ToString() + (t > 1? " turns\n": " turn\n"));
+            }
+            else
+            {
+                Console.WriteLine(t.ToString() + " turns with no winner");
+            }
+        }
+        static void SimpleAI(Turn turn)
+        {
+            if(turn.IsEnemyInRange)
+            {
+                bool Result = turn.Attack();
+                if(Result)
+                {
+                    turn.PlayerNote = "Woo! PWNED!";
+                }
+                else
+                {
+                    turn.PlayerNote = "Lame!";
+                }
+            }
+            else
+            {
+                Random Rng = new Random();
+                turn.Move(1 - Rng.Next(0,3), 1 - Rng.Next(0,3));
+                // turn.PlayerNote = "Where are they?";
+            }
         }
     }
     class Map
@@ -117,26 +145,57 @@ namespace simplegame
         public bool IsEnemyInRange{ get => Enemy != null; }
         public bool Attack()
         {
-            if(IsEnemyInRange)
+            if(!IsTurnDone && IsEnemyInRange)
             {
                 // Temp coin flip for winner
                 bool Win = (new Random()).Next(0,2) == 1;
                 if(Win)
                 {
-                    Action = TurnPlayer.Name + " dies attacking " + Enemy.Name;
-                    IsPlayerDead = true;
+                    Action = TurnPlayer.Name + " defeats " + Enemy.Name;
+                    IsEnemyDead = true;
                     IsTurnDone = true;
                     return true;
                 }
                 else
                 {
-                    Action = TurnPlayer.Name + " defeats " + Enemy.Name;
-                    IsEnemyDead = true;
+                    Action = TurnPlayer.Name + " dies attacking " + Enemy.Name;
+                    IsPlayerDead = true;
                     IsTurnDone = true;
                     return false;
                 }
             }
             return false;
         }
+        public int EnemyX
+        { get{
+            if(IsEnemyInRange)
+            {
+                return Enemy.X;
+            }
+            return -1;
+        }}
+        public int EnemyY
+        { get{
+            if(IsEnemyInRange)
+            {
+                return Enemy.Y;
+            }
+            return -1;
+        }}
+        public int EnemyDefense{ get => GameMap.Tiles[Enemy.X, Enemy.Y].DefenseBonus; }
+        public void Move(int x, int y)
+        {
+            if(!IsTurnDone)
+            {
+                // Allow only one move point in each axis
+                x = x == 0 ? 0 : x / Math.Abs(x);
+                y = y == 0 ? 0 : y / Math.Abs(y);
+                TurnPlayer.X = Mod((TurnPlayer.X + x), GameMap.Width);
+                TurnPlayer.Y = Mod((TurnPlayer.Y + y), GameMap.Height);
+                IsTurnDone = true;
+                Action = TurnPlayer.Name + " moves to " + TurnPlayer.X.ToString() +", " + TurnPlayer.Y.ToString();
+            }
+        }
+        private int Mod(int n, int m) => ((n % m) + m) % m;
     }
 }
