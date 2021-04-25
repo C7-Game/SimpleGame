@@ -50,8 +50,10 @@ namespace simplegame
         public int Y;
         public int Attack;
         public int Defense;
-        public Player(int x, int y, int attack = 1, int defense = 1)
+        public readonly string Name;
+        public Player(string name, int x, int y, int attack = 1, int defense = 1)
         {
+            Name = name;
             X = x;
             Y = y;
             Attack = attack;
@@ -61,18 +63,32 @@ namespace simplegame
     class Turn
     {
         public readonly int TurnNumber;
-        public bool TurnTaken{ get; private set; }
+        private Map GameMap;
+        public bool IsTurnDone{ get; private set; }
         public bool IsPlayerDead{ get; private set; }
         public bool IsEnemyDead{ get; private set; }
+        public string Action{ get; private set; }
+        public string PlayerNote;
         private Player TurnPlayer;
         private Player Enemy;
-        public Turn(Player player, Player enemy, int turnNum)
+        public Turn(Map map, Player player, Player enemy, int turnNum)
         {
             TurnPlayer = player;
+            GameMap = map;
             Enemy = enemy;
             TurnNumber = turnNum;
             IsPlayerDead = false;
             IsEnemyDead = false;
+            IsTurnDone = false;
         }
+        public bool IsEnemyInRange{ get => Enemy != null; }
+        public bool Attack
+        { get {
+            if(IsEnemyInRange)
+            {
+                IsTurnDone = true;
+            }
+            return false;
+        }}
     }
 }
