@@ -14,46 +14,39 @@ namespace simplegame
             int MaxTurns = 25;
             Map GameMap = new Map(Width, Height);
             Console.WriteLine(GameMap.Tiles[5,5].DefenseBonus);
-            Player Player1 = new Player("Player 1", 5, 5);
-            Player Player2 = new Player("Player 2", 20, 20);
+            Player[] Players = new Player[2]; 
+            Players[0] = new Player("Player 1", 5, 5);
+            Players[1] = new Player("Player 2", 20, 20);
             Player Winner = null;
             // Turn Player1Turn = new Turn(GameMap, Player1, Player2, 1);
             // Console.WriteLine(Player1Turn.Attack);
             // Console.WriteLine(Player1Turn.Action);
-            for(int t=0; Winner==null && t < MaxTurns; t++)
+            int t;
+            for(t=0; Winner==null && t < MaxTurns; t++)
             {
                 Console.WriteLine("Turn " + t.ToString());
-                Turn Player1Turn = new Turn(GameMap, Player1, Player2, t);
-                // take turn
-                Player1Turn.Attack();
-                Console.WriteLine(Player1Turn.Action);
-                if(Player1Turn.PlayerNote != null) Console.WriteLine(Player1Turn.PlayerNote);
-                if(Player1Turn.IsEnemyDead)
+                for(int p=0; p<Players.Length; p++)
                 {
-                    Winner = Player1;
-                    continue;
-                }
-                if(Player1Turn.IsPlayerDead)
-                {
-                    Winner = Player2;
-                    continue;
-                }
-                Turn Player2Turn = new Turn(GameMap, Player2, Player1, t);
-                // take turn
-                Player2Turn.Attack();
-                Console.WriteLine(Player2Turn.Action);
-                if(Player2Turn.PlayerNote != null) Console.WriteLine(Player1Turn.PlayerNote);
-                if(Player2Turn.IsEnemyDead)
-                {
-                    Winner = Player2;
-                    continue;
-                }
-                if(Player2Turn.IsPlayerDead)
-                {
-                    Winner = Player1;
-                    continue;
+                    // hack assuming only two players
+                    int e = 1 - p;
+                    Turn PlayerTurn = new Turn(GameMap, Players[p], Players[e], t);
+                    // take turn
+                    PlayerTurn.Attack();
+                    Console.WriteLine("  " + PlayerTurn.Action);
+                    if(PlayerTurn.PlayerNote != null) Console.WriteLine("  Player's note: " + PlayerTurn.PlayerNote);
+                    if(PlayerTurn.IsEnemyDead)
+                    {
+                        Winner = Players[p];
+                        break;
+                    }
+                    if(PlayerTurn.IsPlayerDead)
+                    {
+                        Winner = Players[e];
+                        break;
+                    }
                 }
             }
+            Console.WriteLine("\n" + Winner.Name + " wins in " + t.ToString() + (t > 1? " turns\n": " turn\n"));
         }
     }
     class Map
@@ -126,8 +119,22 @@ namespace simplegame
         {
             if(IsEnemyInRange)
             {
-                Action = TurnPlayer.Name + " attacks " + Enemy.Name;
-                IsTurnDone = true;
+                // Temp coin flip for winner
+                bool Win = (new Random()).Next(0,2) == 1;
+                if(Win)
+                {
+                    Action = TurnPlayer.Name + " dies attacking " + Enemy.Name;
+                    IsPlayerDead = true;
+                    IsTurnDone = true;
+                    return true;
+                }
+                else
+                {
+                    Action = TurnPlayer.Name + " defeats " + Enemy.Name;
+                    IsEnemyDead = true;
+                    IsTurnDone = true;
+                    return false;
+                }
             }
             return false;
         }
