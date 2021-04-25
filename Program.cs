@@ -11,9 +11,49 @@ namespace simplegame
             Console.WriteLine("Hello World!");
             int Width = 25;
             int Height = 25;
+            int MaxTurns = 25;
             Map GameMap = new Map(Width, Height);
             Console.WriteLine(GameMap.Tiles[5,5].DefenseBonus);
-
+            Player Player1 = new Player("Player 1", 5, 5);
+            Player Player2 = new Player("Player 2", 20, 20);
+            Player Winner = null;
+            // Turn Player1Turn = new Turn(GameMap, Player1, Player2, 1);
+            // Console.WriteLine(Player1Turn.Attack);
+            // Console.WriteLine(Player1Turn.Action);
+            for(int t=0; Winner==null && t < MaxTurns; t++)
+            {
+                Console.WriteLine("Turn " + t.ToString());
+                Turn Player1Turn = new Turn(GameMap, Player1, Player2, t);
+                // take turn
+                Player1Turn.Attack();
+                Console.WriteLine(Player1Turn.Action);
+                if(Player1Turn.PlayerNote != null) Console.WriteLine(Player1Turn.PlayerNote);
+                if(Player1Turn.IsEnemyDead)
+                {
+                    Winner = Player1;
+                    continue;
+                }
+                if(Player1Turn.IsPlayerDead)
+                {
+                    Winner = Player2;
+                    continue;
+                }
+                Turn Player2Turn = new Turn(GameMap, Player2, Player1, t);
+                // take turn
+                Player2Turn.Attack();
+                Console.WriteLine(Player2Turn.Action);
+                if(Player2Turn.PlayerNote != null) Console.WriteLine(Player1Turn.PlayerNote);
+                if(Player2Turn.IsEnemyDead)
+                {
+                    Winner = Player2;
+                    continue;
+                }
+                if(Player2Turn.IsPlayerDead)
+                {
+                    Winner = Player1;
+                    continue;
+                }
+            }
         }
     }
     class Map
@@ -82,13 +122,14 @@ namespace simplegame
             IsTurnDone = false;
         }
         public bool IsEnemyInRange{ get => Enemy != null; }
-        public bool Attack
-        { get {
+        public bool Attack()
+        {
             if(IsEnemyInRange)
             {
+                Action = TurnPlayer.Name + " attacks " + Enemy.Name;
                 IsTurnDone = true;
             }
             return false;
-        }}
+        }
     }
 }
