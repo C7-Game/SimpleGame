@@ -11,9 +11,13 @@ namespace simplegame
             int MaxTurns = 250;
             Map GameMap = new Map(Width, Height);
 
+            // TODO: Make AI selectable at launch, and allow custom Lua script
+            LuaAI Player1LuaAI = new LuaAI(EmbeddedLua.AttackOrMoveRight());
+            LuaAI Player2LuaAI = new LuaAI(EmbeddedLua.AttackOrMoveRandom());
+
             Player[] Players = new Player[2]; 
-            Players[0] = new Player("Player 1", 5, 5);
-            Players[1] = new Player("Player 2", 20, 20);
+            Players[0] = new Player("Player 1", 5, 5, ai : Player1LuaAI);
+            Players[1] = new Player("Player 2", 20, 20, ai : Player2LuaAI);
             Player Winner = null;
             int t;
             for(t=0; Winner==null && t < MaxTurns; t++)

@@ -1,4 +1,5 @@
 using System;
+using MoonSharp.Interpreter;
 
 namespace simplegame
 {
@@ -26,6 +27,16 @@ namespace simplegame
                 turn.Move(1 - Rng.Next(0,3), 1 - Rng.Next(0,3));
                 // turn.PlayerNote = "Where are they?";
             }
+        }
+    }
+    // Inherits MoonSharp.Interpreter.Script and sandboxes itself
+    class LuaAI : Script, IAI {
+        public LuaAI(string script) : base(CoreModules.Preset_HardSandbox) {
+            UserData.RegisterType<Turn>();
+            DoString(script);
+        }
+        public void PlayTurn(Turn turn) {
+            DynValue _ = Call(Globals["player_turn"], turn);
         }
     }
 }
