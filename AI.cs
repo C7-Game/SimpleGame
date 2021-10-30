@@ -30,6 +30,7 @@ namespace simplegame
         }
     }
     // Inherits MoonSharp.Interpreter.Script and sandboxes itself
+    //   constructor parameter script should be a Lua script that defines function player_turn accepting a Turn as parameter
     class LuaAI : Script, IAI {
         public LuaAI(string script) : base(CoreModules.Preset_HardSandbox) {
             UserData.RegisterType<Turn>();
