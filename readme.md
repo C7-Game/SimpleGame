@@ -7,7 +7,7 @@ I have added a Lua AI functionality. A script defining `function player_turn (tu
 
 ## API
 
-The API works the same in C# and Lua, but in C# method is Pascal case and lua version is camel case. (e.g. `IsTurnDone()` vs `isTurnDone`)
+The API works the same in C# and Lua, but in C# method is Pascal case and lua version is camel case. (e.g. `IsTurnDone` vs `isTurnDone` or `Move(x,y)` vs `move(x,y)`)
 
 Some of this is useless and was working towards a more complex game. For example, you can get enemy's map coordinates if in range but not your own! The map tiles were to have defensive bonus values, but that feature hasn't been fully implemented.
 
