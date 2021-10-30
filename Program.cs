@@ -30,7 +30,7 @@ namespace simplegame
                     }
                     Turn PlayerTurn = new Turn(GameMap, Players[p], Enemy, t);
                     // take turn
-                        SimpleAI(PlayerTurn);
+                        Players[p].AI.PlayTurn(PlayerTurn);
 
                     Console.WriteLine("  " + PlayerTurn.Action);
                     if(PlayerTurn.PlayerNote != null) Console.WriteLine("  Player's note: " + PlayerTurn.PlayerNote);
@@ -53,27 +53,6 @@ namespace simplegame
             else
             {
                 Console.WriteLine(t.ToString() + " turns with no winner");
-            }
-        }
-        static void SimpleAI(Turn turn)
-        {
-            if(turn.IsEnemyInRange)
-            {
-                bool Result = turn.Attack();
-                if(Result)
-                {
-                    turn.PlayerNote = "Woo! PWNED!";
-                }
-                else
-                {
-                    turn.PlayerNote = "Lame!";
-                }
-            }
-            else
-            {
-                Random Rng = new Random();
-                turn.Move(1 - Rng.Next(0,3), 1 - Rng.Next(0,3));
-                // turn.PlayerNote = "Where are they?";
             }
         }
     }
@@ -112,13 +91,16 @@ namespace simplegame
         public int Attack;
         public int Defense;
         public readonly string Name;
-        public Player(string name, int x, int y, int attack = 1, int defense = 1)
+        public IAI AI;
+        public Player(string name, int x, int y, int attack = 1, int defense = 1, IAI ai = null)
         {
             Name = name;
             X = x;
             Y = y;
             Attack = attack;
             Defense = defense;
+            if (ai == null) { AI = new SimpleAI(); }
+            else { AI = ai; }
         }
     }
     class Turn
