@@ -4,7 +4,7 @@ using MoonSharp.Interpreter;
 namespace simplegame
 {
     interface IAI {
-        public void PlayTurn(Turn turn) {}
+        void PlayTurn(Turn turn);
     }
     class SimpleAI : IAI {
         public void PlayTurn(Turn turn)
